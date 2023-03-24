@@ -5,9 +5,13 @@ import { Search } from "@/components";
 import CitiesCard from "@/components/Home/CitiesCard";
 import { useState } from "react";
 import MapContainer from "@/components/Home/map/MapContainer";
+import { useStore } from "@/hooks/useStore";
 
 export default function Home() {
   const [filteredList, setFilteredList] = useState(citiesData);
+
+  const store = useStore();
+  const active = store.store.sideBar;
 
   return (
     <BaseLayout
@@ -20,16 +24,30 @@ export default function Home() {
           setFilteredList={setFilteredList}
           citiesData={citiesData}
         />
-        <section className="flex ml-4">
-          <section>
-            {filteredList.map((details, i) => (
-              <CitiesCard
-                key={i}
-                details={details}
-              />
-            ))}
-          </section>
-          <section className="ml-4 mt-3">
+        <section className="flex  lg:px-4">
+          {!active && (
+            <section className=" lg:block hidden ">
+              {filteredList.map((details, i) => (
+                <CitiesCard
+                  key={i}
+                  details={details}
+                />
+              ))}
+            </section>
+          )}
+
+          {active && (
+            <section className=" absolute top-[17%] z-20 px-2 w-full bg-white">
+              {filteredList.map((details, i) => (
+                <CitiesCard
+                  key={i}
+                  details={details}
+                />
+              ))}
+            </section>
+          )}
+
+          <section className="lg:ml-4 mt-3 h-screen w-screen">
             <MapContainer />
           </section>
         </section>

@@ -1,6 +1,6 @@
 import { Header } from "@/components";
 import Head from "next/head";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 interface Props {
   children: JSX.Element;

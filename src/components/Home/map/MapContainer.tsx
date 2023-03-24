@@ -7,8 +7,10 @@ import Map, {
   GeolocateControl,
 } from "react-map-gl";
 import Pin from "./Pin";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { citiesData } from "@/store/data/cities";
+import { useStore } from "@/hooks/useStore";
+import moment from "moment-timezone";
 
 interface city {
   city: string;
@@ -18,50 +20,74 @@ interface city {
   longitude: string;
 }
 
+type weather = {
+  main: {
+    temp_max: string;
+    temp_min: string;
+  };
+};
+
 const MapContainer = () => {
-  const [popupInfo, setPopupInfo] = useState<city | null>({
-    city: "",
-    country: "",
-    continent: "",
-    latitude: "",
-    longitude: "",
+  const Token = process.env.NEXT_PUBLIC_MAP_TOKEN;
+  const store = useStore();
+  const [weather, setWeather] = useState<weather>({
+    main: {
+      temp_max: "",
+      temp_min: "",
+    },
   });
 
-  const pins = useMemo(
-    () =>
-      citiesData.map((city, index) => (
-        <Marker
-          key={`marker-${index}`}
-          longitude={parseInt(city.longitude)}
-          latitude={parseInt(city.latitude)}
-          anchor="bottom"
-          onClick={(e) => {
-            // If we let the click event propagates to the map, it will immediately close the popup
-            // with `closeOnClick: true`
-            e.originalEvent.stopPropagation();
-            setPopupInfo(city);
-          }}
-        >
-          <Pin />
-        </Marker>
-      )),
-    [],
-  );
+  const [popupInfo, setPopupInfo] = useState<city | null>(null);
+
+  //   https://api.openweathermap.org/data/2.5/weather?lat=${latLng.lat}&lon=${latLng.lon}&units=imperial&appid=${process.env.NEXT_PUBLIC_WEATHER_API
+
+  async function getWeatherData() {
+    try {
+      const serverResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${popupInfo?.latitude}&lon=${popupInfo?.longitude}&units=imperial&appid=6e1d06e92201bae8f6d78925a0f12996`,
+      );
+      const data = await serverResponse.json();
+      console.log(data);
+      if (data?.cod === "400") throw data;
+      setWeather(data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  console.log(weather);
+
+  const pins = citiesData.map((city, index) => (
+    <Marker
+      key={`marker-${index}`}
+      longitude={parseInt(city.longitude)}
+      latitude={parseInt(city.latitude)}
+      anchor="bottom"
+      onClick={(e) => {
+        // If we let the click event propagates to the map, it will immediately close the popup
+        // with `closeOnClick: true`
+        e.originalEvent.stopPropagation();
+        setPopupInfo(city);
+        if (popupInfo?.latitude !== undefined) {
+          getWeatherData();
+        }
+      }}
+    >
+      <Pin />
+    </Marker>
+  ));
 
   return (
     <Map
       initialViewState={{
-        latitude: 3.349149,
-        longitude: 6.605874,
+        latitude: parseInt(store.store.citiesData.latitude),
+        longitude: parseInt(store.store.citiesData.longitude),
         zoom: 3.5,
         bearing: 0,
         pitch: 0,
       }}
-      style={{ width: 1620, height: 874 }}
       mapStyle="mapbox://styles/mapbox/dark-v9"
-      mapboxAccessToken={
-        "pk.eyJ1IjoidGhlbmV4dGdlbjEiLCJhIjoiY2xmanduZXpzMDU0ZjQ0bXRmM2Jka3o5MCJ9.-4ffm1XlKpDC7owVYtAFTQ"
-      }
+      mapboxAccessToken={Token}
     >
       <GeolocateControl position="top-left" />
       <FullscreenControl position="top-left" />
@@ -78,8 +104,15 @@ const MapContainer = () => {
           onClose={() => setPopupInfo(null)}
         >
           <p>{popupInfo.city}</p>
-          <p>{popupInfo.continent}</p>
           <p>{popupInfo.country}</p>
+          <div>
+            <h2>
+              <span className="mx-2">{weather?.main?.temp_max}&deg;C</span>
+              <span>{weather?.main?.temp_min}&deg;C</span>
+            </h2>
+
+            <div className="today__sun-times"></div>
+          </div>
         </Popup>
       )}
     </Map>

@@ -2,14 +2,14 @@ export const citiesData = [
   {
     city: "Ikeja",
     country: "Nigeria",
-    continent: "West Africa",
+    continent: "Africa",
     latitude: "6.605874",
     longitude: "3.349149",
   },
   {
     city: "Paris",
     country: "France",
-    continent: "Western Europe",
+    continent: "Europe",
     latitude: "48.856613",
     longitude: "2.352222",
   },
