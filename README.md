@@ -2,11 +2,11 @@
 
 ## Project Live_Link
 
-https://github.com/map-with-weather-tng.vercel.app
+https://map-with-weather-tng.vercel.app/
 
 ## Project repository
 
-https://github.com/Thenextgen1/map-with-weather
+https://github.com/Thenextgen1/map-with-weather/
 
 ## Requirements
 
