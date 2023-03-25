@@ -74,7 +74,7 @@ const CitiesCard = ({
     <div
       onClick={handleActive}
       style={{ backgroundColor: bgIndex === index ? "#86868654" : "white" }}
-      className="rounded-lg py-6 flex items-baseline cursor-pointer my-3 px-3 border-[1px] border-solid border-[#cac1c1]"
+      className="rounded-lg py-6 flex items-baseline cursor-pointer my-3 px-3 border-[1px] border-solid border-[#cac1c1] min-w-[290px]"
     >
       <div>
         <h2 className="text-xl font-semibold">{details.city}</h2>
