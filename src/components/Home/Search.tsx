@@ -24,6 +24,7 @@ interface props {
 }
 
 const Search = ({ setFilteredList, citiesData }: props) => {
+  const store = useStore();
   const filterBySearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Access input value
     const query = event.target.value;
@@ -36,6 +37,12 @@ const Search = ({ setFilteredList, citiesData }: props) => {
 
     // Trigger render with updated values
     setFilteredList(updatedList);
+    store.setStore((prevValue: any) => {
+      return {
+        ...prevValue,
+        sideBar: true,
+      };
+    });
   };
 
   return (
@@ -66,3 +73,4 @@ const Search = ({ setFilteredList, citiesData }: props) => {
 
 export default Search;
 import React, { Dispatch, SetStateAction } from "react";
+import { useStore } from "@/hooks/useStore";
