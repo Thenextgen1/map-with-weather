@@ -4,16 +4,29 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useState } from "react";
 
+type store = {
+  sideBar: boolean;
+  popUp: boolean;
+  citiesData: {
+    city: string;
+    country: string;
+    continent: string;
+    longitude: string | undefined;
+    latitude: string | undefined;
+  };
+};
+
 export default function App({ Component, pageProps }: AppProps) {
-  const [store, setStore] = useState({
+  const [store, setStore] = useState<store>({
     sideBar: false,
+    popUp: false,
 
     citiesData: {
       city: "",
       country: "",
       continent: "",
-      latitude: "3.349149",
-      longitude: "6.605874",
+      latitude: undefined,
+      longitude: undefined,
     },
   });
 
