@@ -7,85 +7,66 @@ import Map, {
   GeolocateControl,
 } from "react-map-gl";
 import Pin from "./Pin";
-import { useState } from "react";
-import { citiesData } from "@/store/data/cities";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useStore } from "@/hooks/useStore";
-import moment from "moment-timezone";
+import { city, weather } from "@/pages";
+import WeatherWidget from "./WeatherWidget";
 
-interface city {
-  city: string;
-  country: string;
-  continent: string;
-  latitude: string;
-  longitude: string;
+interface props {
+  setPopupInfo: Dispatch<SetStateAction<city | null>>;
+  popupInfo: city | null;
+  weather: weather | null;
+  getWeatherData(): Promise<void>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-type weather = {
-  main: {
-    temp_max: string;
-    temp_min: string;
-  };
-};
-
-const MapContainer = () => {
+const MapContainer = ({
+  setPopupInfo,
+  popupInfo,
+  weather,
+  getWeatherData,
+  loading,
+  setLoading,
+}: props) => {
   const Token = process.env.NEXT_PUBLIC_MAP_TOKEN;
   const store = useStore();
-  const [weather, setWeather] = useState<weather>({
-    main: {
-      temp_max: "",
-      temp_min: "",
-    },
+
+  const [viewState, setViewState] = useState({
+    latitude: 3.349149,
+    longitude: 6.605874,
+    zoom: 3.5,
+    bearing: 0,
+    pitch: 0,
   });
 
-  const [popupInfo, setPopupInfo] = useState<city | null>(null);
+  useEffect(() => {
+    setViewState((prevView) => {
+      return {
+        ...prevView,
+        latitude: parseInt(store.store.citiesData.latitude!),
+        longitude: parseInt(store.store.citiesData.longitude!),
+      };
+    });
+  }, [
+    store.store.citiesData.latitude,
+    store.store.citiesData.longitude,
+    store.store.popUp,
+  ]);
 
-  //   https://api.openweathermap.org/data/2.5/weather?lat=${latLng.lat}&lon=${latLng.lon}&units=imperial&appid=${process.env.NEXT_PUBLIC_WEATHER_API
-
-  async function getWeatherData() {
-    try {
-      const serverResponse = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${popupInfo?.latitude}&lon=${popupInfo?.longitude}&units=imperial&appid=6e1d06e92201bae8f6d78925a0f12996`,
-      );
-      const data = await serverResponse.json();
-      console.log(data);
-      if (data?.cod === "400") throw data;
-      setWeather(data);
-    } catch (err) {
-      console.log(err);
-    }
+  function togglePopup() {
+    store.setStore((prevValue: any) => {
+      return {
+        ...prevValue,
+        popUp: !store.store.popUp,
+      };
+    });
   }
-
-  console.log(weather);
-
-  const pins = citiesData.map((city, index) => (
-    <Marker
-      key={`marker-${index}`}
-      longitude={parseInt(city.longitude)}
-      latitude={parseInt(city.latitude)}
-      anchor="bottom"
-      onClick={(e) => {
-        // If we let the click event propagates to the map, it will immediately close the popup
-        // with `closeOnClick: true`
-        e.originalEvent.stopPropagation();
-        setPopupInfo(city);
-        if (popupInfo?.latitude !== undefined) {
-          getWeatherData();
-        }
-      }}
-    >
-      <Pin />
-    </Marker>
-  ));
 
   return (
     <Map
-      initialViewState={{
-        latitude: parseInt(store.store.citiesData.latitude),
-        longitude: parseInt(store.store.citiesData.longitude),
-        zoom: 3.5,
-        bearing: 0,
-        pitch: 0,
-      }}
+      {...viewState}
+      initialViewState={viewState}
       mapStyle="mapbox://styles/mapbox/dark-v9"
       mapboxAccessToken={Token}
     >
@@ -94,25 +75,45 @@ const MapContainer = () => {
       <NavigationControl position="top-left" />
       <ScaleControl />
 
-      {pins}
+      {store.store.citiesData.latitude !== undefined && (
+        <Marker
+          latitude={parseInt(store.store.citiesData.latitude!)}
+          longitude={parseInt(store.store.citiesData.longitude!)}
+          anchor="bottom"
+          onClick={(e) => {
+            // If we let the click event propagates to the map, it will immediately close the popup
+            // with `closeOnClick: true`
+            e.originalEvent.stopPropagation();
 
-      {popupInfo && (
+            if (popupInfo?.latitude !== undefined) {
+              setPopupInfo(store.store.citiesData);
+              togglePopup();
+            }
+
+            setTimeout(() => {
+              setLoading(false);
+            }, 1000);
+          }}
+        >
+          <Pin />
+        </Marker>
+      )}
+
+      {store.store.popUp && (
         <Popup
           anchor="top"
-          longitude={Number(popupInfo.longitude)}
-          latitude={Number(popupInfo.latitude)}
-          onClose={() => setPopupInfo(null)}
+          longitude={Number(popupInfo?.longitude)}
+          latitude={Number(popupInfo?.latitude)}
+          onClose={() => togglePopup()}
+          style={{ maxWidth: "none" }}
+          onOpen={() => getWeatherData()}
+          className="min-w-[240px] max-w-none px py-2"
         >
-          <p>{popupInfo.city}</p>
-          <p>{popupInfo.country}</p>
-          <div>
-            <h2>
-              <span className="mx-2">{weather?.main?.temp_max}&deg;C</span>
-              <span>{weather?.main?.temp_min}&deg;C</span>
-            </h2>
-
-            <div className="today__sun-times"></div>
-          </div>
+          <WeatherWidget
+            weather={weather}
+            loading={loading}
+            city={popupInfo?.city!}
+          />
         </Popup>
       )}
     </Map>
