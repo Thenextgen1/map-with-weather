@@ -3,25 +3,25 @@ import { Dispatch, SetStateAction, createContext } from "react";
 interface contextData {
   store: {
     sideBar: boolean;
-
+    popUp: boolean;
     citiesData: {
       city: string;
       country: string;
       continent: string;
-      longitude: string;
-      latitude: string;
+      longitude: string | undefined;
+      latitude: string | undefined;
     };
   };
   setStore: Dispatch<
     SetStateAction<{
       sideBar: boolean;
-
+      popUp: boolean;
       citiesData: {
         city: string;
         country: string;
         continent: string;
-        longitude: string;
-        latitude: string;
+        longitude: string | undefined;
+        latitude: string | undefined;
       };
     }>
   >;
