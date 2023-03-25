@@ -32,6 +32,7 @@ pnpm dev
 
 - Navigate to the / route.
 - When the homepaage is viewed on mobile screen, the hamburger should be used to - dropdown or open the sidebar
+- To view the current weather of the day, click on the marker. A popup should then appear containing the current weather of the day
 
 ```JavaScript
 localhost:3000
