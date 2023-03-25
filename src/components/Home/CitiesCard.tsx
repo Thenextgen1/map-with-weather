@@ -1,17 +1,35 @@
 import { useStore } from "@/hooks/useStore";
-import { useState } from "react";
+import { city } from "@/pages";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { GiPositionMarker } from "react-icons/gi";
 
-type props = {
+interface props {
   details: {
     city: string;
     country: string;
     continent: string;
-    longitude: string;
     latitude: string;
+    longitude: string;
   };
-};
-const CitiesCard = ({ details }: props) => {
+  setPopupInfo: Dispatch<SetStateAction<city | null>>;
+  index: number;
+  bgIndex: number | null;
+  setBgIndex: Dispatch<SetStateAction<number | null>>;
+  getWeatherData(): Promise<void>;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+  loading: boolean;
+}
+
+const CitiesCard = ({
+  details,
+  setPopupInfo,
+  index,
+  bgIndex,
+  setBgIndex,
+  getWeatherData,
+  setLoading,
+  loading,
+}: props) => {
   const store = useStore();
 
   const [active, setActive] = useState(false);
@@ -30,24 +48,32 @@ const CitiesCard = ({ details }: props) => {
       };
     });
   }
+  function togglePopup() {
+    store.setStore((prevValue: any) => {
+      return {
+        ...prevValue,
+        popUp: !store.store.popUp,
+      };
+    });
+  }
 
   const handleActive = () => {
-    setActive(!active);
+    togglePopup();
+    setPopupInfo(details);
     switchMarker();
-  };
+    setActive(!active);
+    setTimeout(() => {
+      setLoading(!loading);
+      getWeatherData();
+    }, 1000);
 
-  function backgroundRGB() {
-    let x = Math.floor(Math.random() * 256);
-    let y = Math.floor(Math.random() * 256);
-    let z = Math.floor(Math.random() * 256);
-    let RGBColor = "rgb(" + x + "," + y + "," + z + "," + "0.2" + ")";
-    return RGBColor;
-  }
+    setBgIndex(index);
+  };
 
   return (
     <div
       onClick={handleActive}
-      style={{ backgroundColor: active ? backgroundRGB() : "white" }}
+      style={{ backgroundColor: bgIndex === index ? "#86868654" : "white" }}
       className="rounded-lg py-6 flex items-baseline cursor-pointer my-3 px-3 border-[1px] border-solid border-[#cac1c1]"
     >
       <div>
