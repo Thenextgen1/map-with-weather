@@ -44,14 +44,20 @@ const MapContainer = ({
     setViewState((prevView) => {
       return {
         ...prevView,
-        latitude: parseInt(store.store.citiesData.latitude!),
-        longitude: parseInt(store.store.citiesData.longitude!),
+        latitude:
+          store.store.citiesData.latitude !== undefined
+            ? parseInt(store.store.citiesData.latitude!)
+            : 3.349149,
+        longitude:
+          store.store.citiesData.longitude !== undefined
+            ? parseInt(store.store.citiesData.longitude!)
+            : 6.605874,
       };
     });
   }, [
+    store.store.citiesData,
     store.store.citiesData.latitude,
     store.store.citiesData.longitude,
-    store.store.popUp,
   ]);
 
   function togglePopup() {
