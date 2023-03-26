@@ -88,26 +88,24 @@ export default function Home() {
           citiesData={citiesData}
         />
         <section className="flex  lg:px-4">
-          {!active && (
-            <section className=" lg:block hidden ">
-              {filteredList.map((details, i) => (
-                <CitiesCard
-                  key={i}
-                  details={details}
-                  index={i}
-                  setPopupInfo={setPopupInfo}
-                  bgIndex={bgIndex}
-                  setLoading={setLoading}
-                  setBgIndex={setBgIndex}
-                  getWeatherData={getWeatherData}
-                  loading={loading}
-                />
-              ))}
-            </section>
-          )}
+          <section className=" lg:block hidden ">
+            {filteredList.map((details, i) => (
+              <CitiesCard
+                key={i}
+                details={details}
+                index={i}
+                setPopupInfo={setPopupInfo}
+                bgIndex={bgIndex}
+                setLoading={setLoading}
+                setBgIndex={setBgIndex}
+                getWeatherData={getWeatherData}
+                loading={loading}
+              />
+            ))}
+          </section>
 
           {active && (
-            <section className=" absolute top-[17%] z-20 px-2 w-full bg-white">
+            <section className=" absolute top-[17%] lg:hidden z-20 px-2 w-full bg-white">
               {filteredList.map((details, i) => (
                 <CitiesCard
                   key={i}
